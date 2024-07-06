@@ -2,17 +2,34 @@ const http=require("http");
 const EventEmitter=require("events");
 const emitter=new EventEmitter();
 const encrypt=require("./encrypt");
+const fs = require("fs");
+
+emitter.on("logerror",(errorMessage)=>{
+    const logMessage=`[${new Date().toISOString()}] Error: ${errorMessage}\n`;
+    fs.appendFile("errorlog.txt",logMessage);
+
+});
 
 emitter.on("myEncryptString", async (data)=>{
-    const item= await encrypt.encryptString(data);
-    console.log(item);
+    try{
+        const item= await encrypt.encryptString(data);
+        console.log(item);
+    }catch(error){
+        emitter.emit("logerror",`Encrypt Error: ${error.message}\n`);
+    }
 });
 
 emitter.on("myCompareString", async (data)=>{
-    const {originalString, hash}=data;
-    const item= await encrypt.compareString(originalString, hash);
-    console.log(item);
+    try{
+        const {originalString, hash}=data;
+        const item= await encrypt.compareString(originalString, hash);
+        console.log(item);
+    }catch(error){
+        emitter.emit("logerror",`Compare Error: ${error.message}\n`);
+    }
 });
+
+
 
 const server= http.createServer((req,res)=>{
     if(req.method === "POST" && req.url === "/MyEncrypt"){
@@ -40,6 +57,7 @@ const server= http.createServer((req,res)=>{
         })
     }
     else{
+        emitter.emit("logerror", "Endpoint Error");
         res.writeHead(404);
         res.end();
     }

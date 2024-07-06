@@ -2,6 +2,8 @@
 
 
 const bcrypt=require('bcrypt');
+const EventEmitter=require("events");
+const emitter=new EventEmitter();
 const saltRounds=10;
 
 const encryptString = async (myPlaintextPassword)=> {
@@ -9,7 +11,7 @@ const encryptString = async (myPlaintextPassword)=> {
         const hash= await bcrypt.hash(myPlaintextPassword.word, saltRounds);
         return hash;
     }catch(err){
-        console.error(err);
+        emitter.emit("logerror", `Encrypt Error: ${err.message}\n`)
     }
 };
 
@@ -19,7 +21,7 @@ const compareString = async (originalString, hash)=>{
         const result= await bcrypt.compare(originalString, hash);
         return result;
     }catch(err){
-        console.error(err);
+        emitter.emit("logerror", `Compare Error: ${err.message}\n`)
     }
 };
 
