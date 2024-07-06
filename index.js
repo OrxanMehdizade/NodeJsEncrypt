@@ -6,7 +6,11 @@ const fs = require("fs");
 
 emitter.on("logerror",(errorMessage)=>{
     const logMessage=`[${new Date().toISOString()}] Error: ${errorMessage}\n`;
-    fs.appendFile("errorlog.txt",logMessage);
+    fs.appendFile("errorlog.txt",logMessage,(err)=>{
+        if(err)throw err;
+        console.log("Error logged to errorlog.txt");
+
+    });
 
 });
 
